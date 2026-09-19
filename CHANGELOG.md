@@ -11,6 +11,32 @@ would make them look arbitrary.
 
 ---
 
+## 1.0.1 — 2026-09-19
+
+**"Named" was the wrong word for what tier 2 actually needs.** The requirement had read *named human
+review* since 0.3.0, while the WorkBuddy implementation (`bio-analysis-guard`) never asked for a name
+— which, under the authority rules, made the implementation the defect to be fixed. The owner decided
+the *requirement* was the problem: a personal name is not what makes a review auditable, and demanding
+one buys friction without buying evidence.
+
+- **Tier 2 now requires an *identified* reviewer, not a named one.** `reviewer` may hold a personal
+  name, initials, or a stable handle / role id (`@wuwei`, `lab-lead`, `pi`). The wording moves from
+  "named" to "identity" throughout `SKILL.md`, `README.md` and the ledger template.
+- **The field is still required, and that is the point.** An empty or placeholder value (`human`,
+  `unknown`, `n/a`) remains indistinguishable from nobody having looked, so it still FAILs at tier 2
+  and WARNs at tier 1. Loosening *who* counts is not the same as allowing an anonymous assertion —
+  that was the defect 0.3.0 existed to close.
+- **The regression suite gains the positive fixture the rule was missing:** a claim reviewed by a
+  handle must **pass** at tier 2. 13 cases / 23 → **24** assertions. A rule tested only against its
+  negative fixture is how a gate ends up rejecting its own legal input.
+- **Figure standards are now explicitly out of scope here** (`references/visualization.md`). This
+  reference answers exactly one question — does the figure support the claim made from it. How a
+  figure is *rendered* (backend, plotting code, palette, export, journal templates) belongs to the
+  figure toolchain. The two do not arbitrate each other; the reciprocal note lives in
+  `sci-figure-toolkit/references/routing.md`.
+
+---
+
 ## 1.0.0 — 2026-09-19
 
 **First public release.** No behaviour change from 0.3.2; this is a packaging and provenance release.

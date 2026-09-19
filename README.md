@@ -182,7 +182,7 @@ The tier comes from **what the result triggers**, not from how complex the analy
 |---|---|---|
 | **0 — exploratory** | Wrong → costs a rerun, nothing else | Move fast, spot-check, label it exploratory |
 | **1 — internal** | Wrong → rework inside the project | Contract, provenance rows, numeric cross-check, figure audit |
-| **2 — decisive** | Wrong → spends wet-lab time, reagents, samples, animals or plants; supports a publication claim; informs a clinical or regulatory decision | Everything above, plus pinned environment, planted known answer, independent re-derivation, re-run test, and **named human review** |
+| **2 — decisive** | Wrong → spends wet-lab time, reagents, samples, animals or plants; supports a publication claim; informs a clinical or regulatory decision | Everything above, plus pinned environment, planted known answer, independent re-derivation, re-run test, and **attributed human review** |
 
 **Rule of thumb: if the next step in the project spends money or irreversibly consumes a resource,
 it is Tier 2.**
@@ -200,7 +200,7 @@ is owed. It never relaxes honesty about what was and wasn't verified.
 | **0 — Frame** | Before touching data | Question in one sentence, unit of analysis, comparison, success criterion, tier |
 | **1 — Contract** | Before running | Fill `analysis-contract.txt` **and** `run-context.txt` (agent, model, session, `run_started_at`). **`UNKNOWN` blocks execution** — deliberate friction; `not_applicable` is allowed but must be justified, and a model identity may be `not_exposed` **with a reason** |
 | **2 — In-run** | After every step | Append the provenance row *as you go*, including `started_at` / `ended_at` / `authored_by`; check the QC metric against its pre-stated range; resolve failures or record a deviation |
-| **3 — Delivery audit** | Before the artifact leaves | Close `run_ended_at`; walk the checklist; add claim-ledger rows with the reviewer's name and date; run the verifier; **declare what was not verified** |
+| **3 — Delivery audit** | Before the artifact leaves | Close `run_ended_at`; walk the checklist; add claim-ledger rows with the reviewer's identity and date; run the verifier; **declare what was not verified** |
 
 A deviation is allowed and expected. Silently complying is not. Every rule resolves to `met`,
 `deviated` (with reason, scope, impact — stated in the deliverable), or `unknown` (**blocks
@@ -224,7 +224,7 @@ FAIL.
 | `contract` | required keys present; no `UNKNOWN`; tier ∈ {0,1,2}; every `not_applicable` actually justified; `not_applicable` rejected on fields that always exist |
 | `run-context` | file present (tier ≥ 1); `agent` / `session_id` / run window resolved, no `UNKNOWN`; `agent: not_applicable` rejected (write `manual` instead — there is no gap to declare); `model` = `not_exposed` accepted **only with a `model_identity_note`**; window must be internally ordered |
 | `provenance` | a row per step; required columns non-empty; `input_sha256` is a real digest; declared outputs exist on disk; tier 2 has a `rerun_match=yes`; per step `started_at` / `ended_at` are ISO-8601 and **fall inside the run window**; `authored_by` ∈ {`agent`, `human`, `agent+human`} |
-| `claims` | evidence artifact exists on disk; `level` / `confidence` / `verified_by` in enum — `level` carries five values (`descriptive` / `comparative` / `hypothesis_generating` / `causal` / `clinical`); `causal` and `clinical` need literature or human verification; tier 2 requires human verification on those; `verified_by: human` at tier 2 needs a **named `reviewer` and a `reviewed_at`** — an anonymous "human" FAILs |
+| `claims` | evidence artifact exists on disk; `level` / `confidence` / `verified_by` in enum — `level` carries five values (`descriptive` / `comparative` / `hypothesis_generating` / `causal` / `clinical`); `causal` and `clinical` need literature or human verification; tier 2 requires human verification on those; `verified_by: human` at tier 2 needs an **identified `reviewer` and a `reviewed_at`** — a personal name is not required, a stable handle or role id will do; an anonymous, empty or placeholder "human" FAILs |
 | `reproducibility` | environment lock present (FAIL at tier 2, WARN at tier 1) |
 | `tables` | a `p` column without `padj`/`q`/`FDR` in any scanned `.tsv`/`.csv` |
 

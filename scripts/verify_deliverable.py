@@ -451,19 +451,20 @@ def check_claims(rows: list[dict], root: Path, tier) -> None:
             add("FAIL", "claims",
                 f"{claim_id}: tier 2 requires human verification for {level} claims")
 
-        # A named human is what tier 2 asks for; an anonymous "human" is an assertion.
+        # An identified human is what tier 2 asks for; an anonymous "human" is an assertion.
+        # A personal name is not required -- a handle or a role id is an identity too.
         if verified == "human":
             reviewer = row.get("reviewer", "").strip()
             reviewed_at = row.get("reviewed_at", "").strip()
-            named = bool(reviewer) and reviewer.lower() not in (
+            identified = bool(reviewer) and reviewer.lower() not in (
                 NA_SENTINELS | UNKNOWN_SENTINELS | {"none"})
-            if not named:
+            if not identified:
                 add("FAIL" if tier == 2 else "WARN", "claims",
-                    f"{claim_id}: verified_by=human without a named `reviewer`"
-                    + (" -- tier 2 requires a name, not an assertion" if tier == 2 else ""))
+                    f"{claim_id}: verified_by=human without an identified `reviewer`"
+                    + (" -- tier 2 requires an identity, not an assertion" if tier == 2 else ""))
             elif not reviewed_at or reviewed_at.lower() in UNKNOWN_SENTINELS:
                 add("FAIL", "claims",
-                    f"{claim_id}: reviewer {reviewer!r} named but `reviewed_at` is empty")
+                    f"{claim_id}: reviewer {reviewer!r} recorded but `reviewed_at` is empty")
             elif parse_ts(reviewed_at) is None:
                 add("WARN", "claims",
                     f"{claim_id}: reviewed_at={reviewed_at!r} is not ISO-8601")

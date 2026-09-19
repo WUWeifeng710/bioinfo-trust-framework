@@ -1,7 +1,7 @@
 ---
 name: bioinfo-trust-framework
 description: 生信分析可信度总闸。任何生信分析开工前必须加载。Trustworthy bioinformatics.
-version: 1.0.0
+version: 1.0.1
 author: WU-WEIFENG
 license: MIT
 platforms: [linux, macos, windows]
@@ -227,9 +227,11 @@ explicitly, every time, even when it feels obvious.
 - **External claims carry their evidence.** For literature-level assertions, use a citation/grounding
   discipline if one is available; otherwise attach the source and the exact supporting sentence, or
   mark the claim `[unverified]`. Never cite a source you did not open.
-- **Name the reviewer.** `verified_by: human` on its own is an assertion, not evidence — a name and
-  a date make it auditable. Tier 2 requires the name; there is no such thing as an anonymous
-  "a human checked this".
+- **Record who reviewed it.** `verified_by: human` on its own is an assertion, not evidence — an
+  identity and a date make it auditable. Tier 2 requires `reviewer`; there is no such thing as an
+  anonymous "a human checked this". A personal name is **not** required: a stable handle, initials
+  or role id (`@wuwei`, `lab-lead`, `pi`) satisfies it. What is rejected is an empty or placeholder
+  value, because that is indistinguishable from nobody having looked.
 - **The decision log records who, not only why.** "The threshold is 0.05" and "the agent proposed
   0.05 and the human approved it" are different records, and only the second tells a reviewer whose
   judgement to interrogate.
@@ -286,7 +288,7 @@ The tier is decided by **what the result triggers**, not by how much you like th
 |---|---|---|
 | **0 — exploratory** | Wrong → costs a rerun and nothing else | Move fast. Spot-check. Label as exploratory. |
 | **1 — internal** | Wrong → rework inside the project (redo an analysis, rewrite a section) | Self-check + numeric cross-check + figure audit. Contract + provenance rows. |
-| **2 — decisive** | Wrong → spends wet-lab time, reagents, samples, or animals/plants; supports a publication claim; informs a clinical or regulatory decision | Contract + full evidence chain + planted known answer + independent re-derivation + **named human review of the load-bearing steps**. |
+| **2 — decisive** | Wrong → spends wet-lab time, reagents, samples, or animals/plants; supports a publication claim; informs a clinical or regulatory decision | Contract + full evidence chain + planted known answer + independent re-derivation + **attributed human review of the load-bearing steps**. |
 
 **Rule of thumb: if the next step in the project spends money or irreversibly consumes a resource,
 it is Tier 2.** Ask it explicitly, out loud, before deciding to skip verification.
@@ -337,7 +339,7 @@ After every step:
 1. Close `run_ended_at` in `run-context.txt`. Every step timestamp must fall inside that window.
 2. Walk the deliverable checklist below.
 3. Add one claim-ledger row per claim (`assets/claim-ledger.tsv`), with its level, evidence
-   artifact, and — where a human reviewed it — the reviewer's name and the date.
+   artifact, and — where a human reviewed it — the reviewer's identity and the date.
 4. Run the verifier if the project carries one:
    `python scripts/verify_deliverable.py <analysis_dir>`
 5. Anything still unverified is **declared in the deliverable**, in plain language: what was not
@@ -356,7 +358,8 @@ equivalent. Items marked *(human)* require judgment and must be reviewed by a pe
 - *(auto)* Every step carries ISO-8601 `started_at` / `ended_at` that fall inside the run window,
   plus an `authored_by` of `agent` / `human` / `agent+human`.
 - *(auto)* Every claim has a claim-ledger row whose evidence artifact exists on disk.
-- *(auto)* Every `verified_by: human` claim at tier 2 names a `reviewer` and dates it.
+- *(auto)* Every `verified_by: human` claim at tier 2 fills `reviewer` — any non-placeholder
+  identity; a personal name is not required — and dates it.
 - *(auto)* Every result table containing a `p` column also contains a multiple-testing-corrected
   column (e.g. `padj`, `q`, `FDR`).
 - *(auto)* Random seed recorded; environment lock file present.

@@ -6,6 +6,13 @@ inaccuracy — but an accurate figure nobody can parse has failed too.
 Load this when producing or reviewing figures for a deliverable. A figure in an exploratory notebook
 answers to the accuracy rules only.
 
+**Boundary — one question only.** This reference governs whether a figure *supports the claim made
+from it*: accuracy, axis honesty, declared *n* / error definition / test. How a figure is **rendered**
+— backend choice, plotting code, palette libraries, themes, export mechanics, editable project files,
+journal-template compliance — belongs to the figure toolchain, not here. The two **do not arbitrate
+each other**: a figure can be beautifully styled and still fail this reference, and a figure can pass
+this reference and then be restyled however the author likes.
+
 ## The block every figure carries
 
 Regardless of figure type, four things must be answerable from the figure or its caption:

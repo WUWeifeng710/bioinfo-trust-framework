@@ -66,6 +66,13 @@ CLAIM_ROW_ANON = (
     "C1\tGene X is up-regulated\tcomparative\tresults/deg.tsv\tdeseq2\tnone\tmoderate\t"
     "human\tnone\tnone\n"
 )
+# v1.0.1: tier 2 asks for an *identified* reviewer, not a personal name. A stable handle
+# or role id is an identity, so this row is legal and must pass -- the positive fixture
+# for the rule whose negative fixture is CLAIM_ROW_ANON.
+CLAIM_ROW_HANDLE = (
+    "C1\tGene X is up-regulated\tcomparative\tresults/deg.tsv\tdeseq2\tnone\tmoderate\t"
+    "human\t@wuwei\t2026-09-19\n"
+)
 # Enrichment output: nominates a hypothesis, supports nothing stronger. The level did
 # not exist in this standard until v0.3.2, while the WorkBuddy implementation required it.
 CLAIM_ROW_HYP = (
@@ -225,15 +232,25 @@ def case_missing_step_time(tmp: Path) -> None:
 
 
 def case_anonymous_reviewer(tmp: Path) -> None:
-    """(regression) Tier 2 asks for a NAMED human review; the ledger used to offer
-    no place to put the name, so 'human' was an unauditable assertion."""
+    """(regression) Tier 2 asks for an IDENTIFIED human review; the ledger used to offer
+    no place to put the identity, so 'human' was an unauditable assertion. Since v1.0.1 a
+    personal name is not required -- a handle or a role id is an identity too."""
     root = tmp / "anon"
     make_fixture(root, claims=CLAIM_HEADER + CLAIM_ROW_ANON)
-    expect("anonymous human review fails at tier 2", root, 2, 1, "without a named `reviewer`")
+    expect("anonymous human review fails at tier 2", root, 2, 1,
+           "without an identified `reviewer`")
 
     root2 = tmp / "anon-t1"
     make_fixture(root2, tier=1, claims=CLAIM_HEADER + CLAIM_ROW_ANON)
-    expect("anonymous human review warns at tier 1", root2, 1, 0, "without a named `reviewer`")
+    expect("anonymous human review warns at tier 1", root2, 1, 0,
+           "without an identified `reviewer`")
+
+    # The positive half of the pair: a handle is not a personal name, and tier 2 must
+    # accept it. Dropping the legal fixture is how a gate ends up rejecting its own
+    # valid input -- which is what makes people switch the gate off.
+    root3 = tmp / "handle"
+    make_fixture(root3, claims=CLAIM_HEADER + CLAIM_ROW_HANDLE)
+    expect("a handle instead of a personal name passes at tier 2", root3, 2, 0, "gate passed")
 
 
 def case_tier0_skips(tmp: Path) -> None:

@@ -4,8 +4,10 @@ claim_id	claim	level	evidence_artifact	method	literature	confidence	verified_by	
 # level        : descriptive | comparative | hypothesis_generating | causal | clinical
 # confidence   : high | moderate | low
 # verified_by  : automated | human | none
-# reviewer     : name or initials of the human who reviewed it. Required when
-#                verified_by=human and tier=2 -- an anonymous 'human' is not auditable.
+# reviewer     : who reviewed it -- a personal name, initials, or a stable handle /
+#                role id (@wuwei, lab-lead, pi) all satisfy this; a personal name is
+#                NOT required. Required when verified_by=human and tier=2 -- an
+#                anonymous 'human', an empty cell or a placeholder is not auditable.
 #                Otherwise write `none`.
-# reviewed_at  : ISO-8601 date. Required whenever reviewer is named.
+# reviewed_at  : ISO-8601 date. Required whenever reviewer is filled.
 # C01	Gene X is up-regulated in treated vs control roots	comparative	results/deseq2_treated_vs_control.tsv	deseq2 padj<0.05 log2FC>1	n/a	moderate	human	W.W.	2026-09-19
