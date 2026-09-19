@@ -128,21 +128,35 @@ A recorded deviation is a decision. That is categorically different from proceed
 is the difference between "the QC threshold was inappropriate for this library type" and "nobody
 looked".
 
+Since framework 1.1.0 the deviation state also lives per step in the provenance ledger's
+`deviation` column (`met` / `deviated` / `unknown`). `deviated` requires a matching entry in
+`error-ledger.tsv`; `unknown` blocks delivery — the checker enforces both.
+
 ## Gate 3 — Delivery audit
 
 Before the artifact leaves your hands:
 
 1. Walk the deliverable checklist in `SKILL.md`.
 2. Add one claim-ledger row per claim — including the ones you think are obvious.
-3. Run the mechanical check:
+3. Close the **error account**: fill `error-ledger.tsv` with one row per error that occurred
+   (class `inherited` / `amplified` / `emergent`, plus `emergent_kind` for emergent ones), or
+   declare `# none-detected-by: <method>` at the top. An empty ledger without the declaration
+   fails the gate.
+4. At tier 2 with human-verified claims: record what the review did in `review-record.tsv` —
+   scope, identified reviewer, duration, disagreements, overrides, errors found. The checker
+   reports the totals and judges nothing; the point is that "a human checked it" becomes a
+   measurable component instead of a signature.
+5. Run the mechanical check:
 
    ```
    python scripts/verify_deliverable.py <analysis_dir>
    ```
 
    Exit 0 = no mechanical failures. Fix what it reports, or list genuinely mis-flagged tables in
-   `.trust-ignore` with a comment saying why.
-4. Write the **unverified declaration**: what was not verified, and why. Put it in the deliverable.
+   `.trust-ignore` with a comment saying why. Findings are grouped by substantive gate
+   (`execution` / `design` / `inference` / `biological` / `external`); the `biological` gate has
+   no mechanical check — it is exactly what the review record exists to cover.
+6. Write the **unverified declaration**: what was not verified, and why. Put it in the deliverable.
 
 ## What each tier owes
 

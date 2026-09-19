@@ -11,6 +11,49 @@ would make them look arbitrary.
 
 ---
 
+## 1.1.0 — 2026-09-19
+
+**Three new mechanical layers, adopted from THREAD-Bio's failure taxonomy, and the reviewer
+becomes a measurable component.** All three are *opt-in per deliverable* via
+`framework_version: 1.1.0` in the contract: an older contract keeps the pre-1.1.0 bar with the
+new checks downgraded to advisory — otherwise 1.1.0 would retroactively fail every honest
+deliverable that predates it.
+
+- **The error account (`assets/error-ledger.tsv`).** Every error carries a class:
+  `inherited` (would have happened anyway), `amplified` (the agent accelerates, scales, or
+  quietly propagates an inherited error), or `emergent` (agent-specific, with a `kind`:
+  goal drift, context loss, stale memory, retrieval poisoning, incomplete tool description).
+  "We looked and found nothing" must be declared explicitly via `# none-detected-by: <method>`
+  — a blank ledger is indistinguishable from nobody having looked, and only one of the two is
+  a checkable statement. A provenance row marked `deviated` without an error entry fails:
+  a deviation is a decision, and a decision nobody wrote down is a defect. Every error
+  cross-references its detection method, containment, and the claims it reached.
+- **The review record (`assets/review-record.tsv`).** Tier 2 always spent human time; nothing
+  recorded what it bought. One row per review: scope, identified reviewer, duration,
+  disagreements (+detail when nonzero), overrides, errors found, verdicts changed, and a
+  calibration note. The checker **reports the totals and judges nothing** — a numeric quota
+  would turn measurement into paperwork, and a tier-2 review that never catches anything is a
+  signal about the review process, not the analysis. Multiple agents or models agreeing are
+  **not votes**: shared training distributions make agreement cheap, so the standard says so
+  explicitly instead of leaving it to be discovered.
+- **Substantive gate labels.** The four timeline gates answer *when* a check happens; the
+  five labels — `execution`, `design`, `inference`, `biological`, `external` — answer *what
+  kind of judgement failed*. The two axes are orthogonal and replacing one with the other is
+  a category error. Every checker finding now reads `FAIL [inference] C42: …`, the run ends
+  with a per-gate summary, and `assets/gate-map.tsv` is verified against the checker's
+  registry at startup — a desynchronised map stops the checker (exit 2), because an
+  unlabelled finding cannot be interpreted. The `biological` gate has no mechanical check by
+  design; that judgement is what the review record is for.
+- **Two defects the regression suite caught in the checker itself** (a rule tested against its
+  own documentation is the only way to find these):
+  `deviation: unknown` was documented to block delivery but the checker let it pass;
+  and `reviewer: human` — the verified_by value echoed into the identity field — was not
+  treated as the placeholder it is.
+- **Regression suite: 19 cases / 24 → 54 assertions**, each new rule tested against both a
+  legal and an illegal fixture.
+
+---
+
 ## 1.0.1 — 2026-09-19
 
 **"Named" was the wrong word for what tier 2 actually needs.** The requirement had read *named human

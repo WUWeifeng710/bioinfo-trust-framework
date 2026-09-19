@@ -10,14 +10,28 @@ nothing stops you from acting on it.
 | | |
 |---|---|
 | Skill name | `bioinfo-trust-framework` |
-| Version | 1.0.0 |
+| Version | 1.1.0 |
 | Description | 生信分析可信度总闸。任何生信分析开工前必须加载。Trustworthy bioinformatics. |
 | Author | WU-WEIFENG |
 | License | MIT |
 | Platforms | linux / macos / windows |
 | Category | research |
 | Runtime needed | Python 3.8+ (verifier only; the skill itself is plain markdown) |
-| Files | 1 `SKILL.md`, 3 references, 4 assets, 2 scripts, `README.md`, `CHANGELOG.md`, `LICENSE` |
+| Files | 1 `SKILL.md`, 3 references, 7 assets, 2 scripts, `README.md`, `CHANGELOG.md`, `LICENSE` |
+
+**What's new in 1.1.0** — three mechanical layers, all opt-in via `framework_version: 1.1.0` in the
+contract (older deliverables keep the pre-1.1.0 bar, downgraded to advisory):
+
+1. **The error account** — every recorded error is `inherited`, `amplified`, or `emergent`
+   (goal drift, context loss, stale memory, retrieval poisoning, incomplete tool description);
+   "we looked and found nothing" must be declared with `# none-detected-by:`.
+2. **The review record** — what a tier-2 human review actually did: scope, duration,
+   disagreements, overrides, errors caught. Measured, never quota'd.
+3. **Substantive gate labels** — every checker finding is labelled
+   `execution` / `design` / `inference` / `biological` / `external`, with the mapping
+   (`assets/gate-map.tsv`) verified against the checker at startup.
+
+Regression suite: 19 cases / 54 assertions, all green.
 
 It governs **whether a result can be trusted**, across bioinformatics analysis as a whole —
 sequencing and omics work, sequence and gene-family analysis, phylogenetics, structural and docking
@@ -215,7 +229,8 @@ python scripts/verify_deliverable.py <analysis_dir> [--expect-tier 0|1|2] [--jso
 ```
 
 Stdlib only, Python 3.8+, no network. Exit code `0` = no mechanical failures; `1` = at least one
-FAIL.
+FAIL; `2` = the framework itself is broken (missing or desynchronised gate map) — findings cannot
+be interpreted without it.
 
 **Checks structure**, grouped by section:
 
@@ -223,10 +238,17 @@ FAIL.
 |---|---|
 | `contract` | required keys present; no `UNKNOWN`; tier ∈ {0,1,2}; every `not_applicable` actually justified; `not_applicable` rejected on fields that always exist |
 | `run-context` | file present (tier ≥ 1); `agent` / `session_id` / run window resolved, no `UNKNOWN`; `agent: not_applicable` rejected (write `manual` instead — there is no gap to declare); `model` = `not_exposed` accepted **only with a `model_identity_note`**; window must be internally ordered |
-| `provenance` | a row per step; required columns non-empty; `input_sha256` is a real digest; declared outputs exist on disk; tier 2 has a `rerun_match=yes`; per step `started_at` / `ended_at` are ISO-8601 and **fall inside the run window**; `authored_by` ∈ {`agent`, `human`, `agent+human`} |
+| `provenance` | a row per step; required columns non-empty; `input_sha256` is a real digest; declared outputs exist on disk; tier 2 has a `rerun_match=yes`; per step `started_at` / `ended_at` are ISO-8601 and **fall inside the run window**; `authored_by` ∈ {`agent`, `human`, `agent+human`}; `deviation` ∈ {`met`, `deviated`, `unknown`} — `deviated` needs an error entry, `unknown` blocks delivery |
 | `claims` | evidence artifact exists on disk; `level` / `confidence` / `verified_by` in enum — `level` carries five values (`descriptive` / `comparative` / `hypothesis_generating` / `causal` / `clinical`); `causal` and `clinical` need literature or human verification; tier 2 requires human verification on those; `verified_by: human` at tier 2 needs an **identified `reviewer` and a `reviewed_at`** — a personal name is not required, a stable handle or role id will do; an anonymous, empty or placeholder "human" FAILs |
+| `errors` | (1.1.0, opt-in) `error-ledger.tsv` present with either rows or an explicit `# none-detected-by:` declaration; `class` ∈ {`inherited`, `amplified`, `emergent`} with `emergent_kind` required for emergent; `stage` references a real step; `propagated_to` references real claims; `detected_by=not_detected` forces `containment=uncontained` |
+| `review` | (1.1.0, opt-in) at tier 2 with human-verified claims, `review-record.tsv` exists and covers them; identified reviewer, positive `duration_min`, integer counts (0 legal, blank not), `disagreements_detail` when disagreements > 0; the checker reports totals and judges nothing |
 | `reproducibility` | environment lock present (FAIL at tier 2, WARN at tier 1) |
 | `tables` | a `p` column without `padj`/`q`/`FDR` in any scanned `.tsv`/`.csv` |
+
+Every finding is labelled with its substantive gate — `FAIL [inference] C42: …` — and the run ends
+with a per-gate summary. `assets/gate-map.tsv` maps check ids to gates and is verified against the
+checker's registry at startup. The `biological` gate has no mechanical check; that judgement is what
+the human review record is for.
 
 Everything in `run-context`, plus step timestamps and `authored_by`, is skipped at **tier 0** — the
 exploratory path stays fast on purpose.
@@ -253,7 +275,7 @@ substitutes for them.
 
 ## Validation status
 
-The verifier ships with a regression suite — `scripts/test_verify_deliverable.py`, 13 cases and 23
+The verifier ships with a regression suite — `scripts/test_verify_deliverable.py`, 19 cases and 54
 assertions, stdlib only. Run it after any edit to the checker:
 
 ```bash
@@ -279,8 +301,20 @@ artifact, rather than a hypothetical one:
 | Tier 0 with an entirely empty actor layer | PASS — the fast path stays fast |
 | An enrichment result labelled `hypothesis_generating` *(regression)* | PASS — the level was absent from the standard until v0.3.2 while the implementation required it |
 | Uncorrected `p` column; tier 2 without a lock file | FAIL — earlier checks were not softened |
+| 1.1.0 contract without the new components | FAIL; the same fixture under a pre-1.1.0 contract → advisory WARN, exit 0 |
+| A complete 1.1.0 deliverable (error account + review record + deviation column) | PASS |
+| An empty error ledger without a `none-detected-by` declaration | FAIL — blank is indistinguishable from nobody having looked |
+| A `deviated` step with / without a matching error entry | PASS / FAIL |
+| Unknown error class; emergent without `emergent_kind`; missing resolution; bad `stage`; bad `propagated_to`; undetected-but-"contained" | FAIL |
+| Tier 0 under a 1.1.0 contract | PASS — the fast path survives the opt-in |
+| Tier 2 with a human-verified claim and no review record | FAIL |
+| Review record with a placeholder reviewer / a blind spot in scope / disputes without detail / a blank count | FAIL |
+| Tier 2 with automated-only claims and no review record | PASS — nothing to review |
+| `deviation: improvised` / `deviation: unknown` | FAIL / FAIL — unknown is in the enum but still blocks delivery |
+| Findings carry `[gate]` labels; the summary declares gates without mechanical checks | yes |
+| A desynchronised gate map | exit 2 — the checker refuses to emit uninterpretable findings |
 
-Five defects have been found and fixed by exercising the checker, none of which a read-through caught:
+Seven defects have been found and fixed by exercising the checker, none of which a read-through caught:
 
 1. `not_applicable_justification: none` was accepted as a justification, so three reference fields
    could be waved through with no reason given. Now treated as empty.
@@ -300,6 +334,14 @@ Five defects have been found and fixed by exercising the checker, none of which 
    carried a level this file lacked. Enrichment output is not `comparative`, and marking it `causal`
    is the classic overreach; it nominates a hypothesis and nothing more. The level was added here, by
    the rule in *Authority*, instead of staying a local extension of one implementation.
+6. **`deviation: unknown` did not block delivery** *(v1.1.0)*. The template documented "`unknown` —
+   not established. This blocks delivery until it is resolved", but the checker only validated the
+   enum — `unknown` was a legal value, so the documented block existed nowhere in code. The
+   regression suite held the checker to its own documentation.
+7. **`reviewer: human` was accepted as an identity** *(v1.1.0)*. Echoing the `verified_by` value
+   into the identity field is a tautology: it identifies nobody and is indistinguishable from
+   nobody having looked — exactly what the placeholder rule exists to catch. `human` now counts as
+   a reviewer placeholder in both the claim ledger and the review record.
 
 Defect 4 is worth dwelling on. `references/verification-gates.md` already warns that a gate which is
 uniformly painful is how a project concludes the discipline is bureaucracy and stops using it — and
@@ -308,6 +350,12 @@ fires on a legitimate input is worse than no check.**
 
 That is the framework applied to itself: a check that has never failed a known-bad input has not
 been validated.
+
+**Honest scope for 1.1.0:** the three new layers (error account, review record, gate labels) have
+been validated against fixtures only — 19 cases / 54 assertions, every rule tested against both a
+legal and an illegal input. They have **not** yet gated a real multi-week analysis in the field.
+Rule stability is not validator completeness; the first real-world deliverable run under
+`framework_version: 1.1.0` is the actual test, and its findings belong back in this file.
 
 ---
 
@@ -324,8 +372,11 @@ bioinfo-trust-framework/
 ├── assets/
 │   ├── analysis-contract.template    Gate 1 contract, key: value, `UNKNOWN` sentinel
 │   ├── run-context.template          Gate 1 actor layer — agent, model, session, window
-│   ├── provenance-ledger.tsv         Gate 2 — one row per executed step, with time + author
-│   └── claim-ledger.tsv              Gate 3 — one row per claim, with its reviewer
+│   ├── provenance-ledger.tsv         Gate 2 — one row per executed step, with time + author + deviation
+│   ├── claim-ledger.tsv              Gate 3 — one row per claim, with its reviewer
+│   ├── error-ledger.tsv              1.1.0 — the error account (inherited / amplified / emergent)
+│   ├── review-record.tsv             1.1.0 — what a human review actually did
+│   └── gate-map.tsv                  1.1.0 — check id → gate label, verified at startup
 ├── references/
 │   ├── evidence-chain.md             broken-chain examples + the 10-minute audit
 │   ├── verification-gates.md         gate detail + what each tier owes

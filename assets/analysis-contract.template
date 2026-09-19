@@ -18,6 +18,16 @@ unit_of_analysis: UNKNOWN
 tier: UNKNOWN
 success_criteria: UNKNOWN
 
+# ---- framework version ----
+
+# Which version of this framework the deliverable is audited against. Declaring
+# >= 1.1.0 opts in to the error ledger, the review record and the step-level
+# `deviation` column. A contract that omits this line is read at the pre-1.1.0 bar:
+# those requirements are then reported as advisory rather than as failures, so a
+# deliverable produced under an older framework is not retroactively judged
+# non-compliant. Delete the line only if you mean that.
+framework_version: 1.1.0
+
 # ---- comparison design ----
 
 # What one n is (biological individual, patient, batch, simulation replica, ...)

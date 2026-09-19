@@ -1,7 +1,7 @@
 ---
 name: bioinfo-trust-framework
 description: 生信分析可信度总闸。任何生信分析开工前必须加载。Trustworthy bioinformatics.
-version: 1.0.1
+version: 1.1.0
 author: WU-WEIFENG
 license: MIT
 platforms: [linux, macos, windows]
@@ -298,6 +298,25 @@ verified.
 
 ## Operating procedure: four gates
 
+The four gates are a **timeline** — *when* a check happens. Since v1.1.0 every mechanical
+finding also carries a **substantive gate label** — *what kind of judgement failed*:
+
+| Gate label | Kind of judgement | Mechanical checks |
+|---|---|---|
+| `execution` | Was it run as recorded? | yes |
+| `design` | Was the question framed so an answer could exist? | yes |
+| `inference` | Does the conclusion follow from the evidence? | yes |
+| `biological` | Does the biology make sense? | **no — human checklist items only** |
+| `external` | Do the references and databases line up? | yes |
+
+The two axes are orthogonal: replacing the timeline with the labels (or the reverse) is a
+category error. `assets/gate-map.tsv` maps every checker id to its label and is verified
+against the checker's registry at startup — a desynchronised map stops the checker (exit 2),
+because an unlabelled finding cannot be interpreted. Verifier output reads
+`FAIL [inference] C42: …`, and the run ends with a per-gate summary. The `biological` gate
+has no mechanical check by design — that judgement is exactly what the human review record
+is for.
+
 ### Gate 0 — Frame (before touching data)
 
 Write down: the question, the unit of analysis (what one *n* is), the comparison, the success
@@ -364,6 +383,16 @@ equivalent. Items marked *(human)* require judgment and must be reviewed by a pe
   column (e.g. `padj`, `q`, `FDR`).
 - *(auto)* Random seed recorded; environment lock file present.
 - *(auto)* No claim at level `causal` or `clinical` without literature or human verification.
+- *(auto)* Framework 1.1.0 (opt-in via `framework_version: 1.1.0` in the contract; older
+  contracts keep the pre-1.1.0 bar with the items below downgraded to advisory):
+  - *(auto)* An error ledger exists (`error-ledger.tsv`): either rows for every error that
+    occurred, or an explicit `# none-detected-by: <method>` declaration — an empty ledger is
+    indistinguishable from nobody having looked.
+  - *(auto)* Every provenance row marked `deviated` has a matching error-ledger entry, and
+    every `deviation: unknown` blocks delivery.
+  - *(auto)* At tier 2 with human-verified claims, a review record (`review-record.tsv`)
+    exists, covers those claims in its `scope`, and carries an identified reviewer, a
+    duration, and integer counts (0 is a legal and informative value; blank is not).
 - *(human)* QC metrics in range; every exception explained or excluded.
 - *(human)* High-impact results independently re-derived; a known answer was recovered.
 - *(human)* Interpretation level matches evidence level — description not sold as causation.
@@ -393,6 +422,49 @@ move it there instead of leaving it to be ignored.
 The same mechanism covers the "a check failed" case: a QC value outside its expected range does not
 have to deadlock a legitimate analysis. Record the deviation, the reason, and the impact on
 conclusions — that is categorically different from proceeding quietly.
+
+## The error account: how an agent fails
+
+Since v1.1.0 every error recorded in `error-ledger.tsv` carries one of three classes. The
+taxonomy exists because an agent does not only *make* errors — it can accelerate, hide, and
+invent them:
+
+- `inherited` — would have happened anyway: a swapped sample, an incompatible genome version,
+  a statistical confound.
+- `amplified` — the agent speeds up, scales up, or *quietly propagates* an inherited error.
+  The signature is scope: one wrong choice at the start reaching the figures and the
+  manuscript with no independent check in between.
+- `emergent` — specific to agent mechanisms. Record the kind:
+  `goal_drift` (iterative planning swaps the question for an easier one),
+  `context_loss` (a pairing, an exclusion criterion, or a control drops out of the working
+  context), `stale_memory` (a remembered fact used past its expiry),
+  `retrieval_poisoning` (instructions found inside a repo or metadata obeyed as
+  instructions), `incomplete_tool_description` (the tool does less than its description
+  claims).
+
+An error nobody detected is a legal state — but "we looked and found nothing" must be said
+explicitly with `# none-detected-by: <method>` in the ledger. Blank and examined are
+different statements; only one of them is checkable.
+
+One rule the checker deliberately does *not* automate: opinions from multiple agents or
+models are **not votes**. Agreement between two systems that share a training distribution
+is not independent confirmation — record them in the provenance ledger as what they are
+(witnesses), and let the review record say who actually checked.
+
+## The review record: a measurement, not a ceremony
+
+Tier 2 has always spent human time; until v1.1.0 nothing recorded what that time bought.
+`review-record.tsv` (one row per review) makes the review a component:
+
+`scope` (claim/step ids covered), `reviewer` (same identity rule as the claim ledger),
+`reviewed_at`, `duration_min`, `disagreements` + `disagreements_detail`, `overrides`,
+`errors_found`, `error_classes_found`, `verdicts_changed`, `calibration_note`.
+
+The checker **reports the totals and judges nothing**: no threshold on duration, no quota on
+errors found. A numeric quota converts a measurement into a paperwork target, which is how a
+gate stops being read. One diagnostic is worth keeping in mind: if tier-2 reviews return
+`errors_found = 0` several times running, the signal is about the review process, not the
+analysis — simplify or redesign the gate rather than multiplying it.
 
 ## Pitfalls
 
@@ -438,9 +510,12 @@ detail to mention in passing.
 4. Has this pipeline ever recovered a known answer, and can I show where?
 5. Have I re-run it from the locked environment and compared the outputs?
 6. Is every claim's level (`descriptive` → `clinical`) supported by its evidence?
-7. For every `verified_by: human`, is there a name and a date?
+7. For every `verified_by: human`, is there an identified reviewer (name, initials, or stable
+   handle) and a date — and if tier 2, does a review record cover it?
 8. Does every figure state its *n*, error definition, and test?
 9. What did I **not** verify? (If the answer is "nothing", look harder.)
+10. What errors occurred, and does the error ledger say so — including the honest
+    `none-detected-by` declaration if none did?
 
 ## Files
 
@@ -448,8 +523,11 @@ detail to mention in passing.
 |---|---|
 | `assets/analysis-contract.template` | Fill-in contract for Gate 1 |
 | `assets/run-context.template` | Fill-in actor layer for Gate 1 — agent, model, session, window |
-| `assets/provenance-ledger.tsv` | Per-step provenance ledger for Gate 2 |
+| `assets/provenance-ledger.tsv` | Per-step provenance ledger for Gate 2 (incl. `deviation` since 1.1.0) |
 | `assets/claim-ledger.tsv` | Per-claim evidence ledger for Gate 3 |
+| `assets/error-ledger.tsv` | Error account — inherited / amplified / emergent (since 1.1.0) |
+| `assets/review-record.tsv` | What a human review actually did (since 1.1.0) |
+| `assets/gate-map.tsv` | check id → substantive gate label; verified against the checker at startup |
 | `scripts/verify_deliverable.py` | Mechanical gate checker (stdlib only; exit 0 = pass) |
 | `scripts/test_verify_deliverable.py` | Regression tests for the checker — run after any edit to it |
 | `references/evidence-chain.md` | Broken-chain examples + the 10-minute audit |

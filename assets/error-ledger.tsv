@@ -1,0 +1,55 @@
+error_id	stage	class	emergent_kind	description	detected_by	detected_at	containment	propagated_to	resolution
+# The error account (framework 1.1.0). One row per error that was found — or that is
+# known to be there and was never caught.
+#
+# WHY THIS FILE EXISTS
+#   The provenance ledger records what ran. The claim ledger records what was concluded.
+#   Neither records what went wrong. In agent-assisted analysis that omission is
+#   load-bearing: the failure mode is not a crash but a plausible wrong answer, and the
+#   errors that produce it are mostly not the ones a human analyst would make.
+#
+# class — three values, and the difference between them is the point:
+#   inherited  the error was there before the agent touched anything: a swapped sample,
+#              an incompatible genome build, a confounding batch. A careful analyst
+#              working by hand hits these too.
+#   amplified  the workflow made an inherited error faster, larger or quieter. Choosing
+#              the wrong genome build near the start can travel all the way into a
+#              figure and a manuscript without any independent check firing.
+#   emergent   the failure is produced by the agent's own mechanics. These have no
+#              hand-analysis equivalent, which is why they are easy to miss and why
+#              `emergent_kind` is required:
+#                goal_drift                 iterative planning quietly replaces the
+#                                           question asked with an easier one to answer
+#                context_loss               pairing, exclusion criteria or a negative
+#                                           control drop out of the working context
+#                stale_memory               a remembered fact is used past its expiry
+#                retrieval_poisoning        instructions found in a repository or in
+#                                           metadata are obeyed as instructions
+#                incomplete_tool_description  the tool does less than its description says
+#
+# detected_by : auto | human | not_detected
+#   `not_detected` is not a shrug. It records an error you believe is present but that
+#   no check caught — the honest form of "we cannot rule this out". It then REQUIRES
+#   containment=uncontained and an empty detected_at: something that was never detected
+#   cannot have been contained on a date.
+# detected_at : ISO-8601 date. Empty when detected_by=not_detected.
+# containment : where it was fixed (a script, a re-run, a design change). `uncontained`
+#   when the error is still live. Uncontained errors must appear in the deliverable's
+#   unverified declaration.
+# propagated_to : comma-separated claim_ids this error reaches. Each must exist in
+#   claim-ledger.tsv — an error that reached a claim nobody recorded is a lost trail.
+#   Write `-` when it reached no claim.
+#
+# NO-ERRORS DECLARATION
+#   An empty ledger is indistinguishable from a ledger nobody filled in, so "we looked
+#   and found nothing" has to be said out loud, with the check that supports it:
+#
+#       # none-detected-by: <the check you actually ran>
+#
+#   That declaration is required whenever this file has no data rows, and rejected when
+#   it is blank or a placeholder. If any step is recorded `deviated` in
+#   provenance-ledger.tsv, this file must have at least one row and the declaration does
+#   not substitute for it.
+# none-detected-by: UNKNOWN
+# E01	S08	emergent	goal_drift	Plan rewrote "is the defence response induced" as "which pathways are enriched", so no comparison against the uninduced control was ever run.	human	2026-09-20	re-ran S08 against the control and regenerated Fig 2	C01,C03	Re-ran with the original contrast; the enrichment result was withdrawn.
+# E02	S03	inherited	-	Annotation used ITAG4.0 while the expression matrix was quantified against ITAG4.1.	auto	2026-09-19	re-quantified against ITAG4.1	C01	Coordinates re-derived; four genes changed locus.

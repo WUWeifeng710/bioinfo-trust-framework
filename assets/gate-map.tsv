@@ -1,0 +1,94 @@
+check_id	gate	section	what_it_checks
+# The gate map of scripts/verify_deliverable.py. Generated from the checker's
+# CHECKS registry (`--write-gate-map`), verified against it on every run
+# (`--gate-map-check`). A check id that is not here, or that carries a different
+# gate here than in the registry, makes the checker exit 2 rather than print a
+# classification it cannot justify.
+#
+# The four gates in SKILL.md are a TIME axis (when to check). These five are the
+# SUBSTANCE axis (what kind of judgement is being checked). Both are kept; neither
+# replaces the other.
+#
+#   execution   -- did it run, and is the record complete
+#   design      -- does the design support the question
+#   inference   -- do statistics and evidence license the conclusion
+#   biological  -- does it hold up biologically
+#   external    -- does it line up with the outside world
+#
+# NOTE on the empty column: no mechanical check carries the `biological` gate, and
+# that is a finding from doing the mapping, not an oversight. Deciding whether a
+# result is biologically coherent needs a model of the system under study; a
+# generic checker that claimed to do it would be guessing. Biological soundness
+# stays with the (human) checklist items.
+C01	design	contract	a required design field is absent from the contract
+C02	external	contract	a required reference field (genome / annotation / database) is absent
+C03	execution	contract	random_seed is absent from the contract
+C04	design	contract	a field that conceptually always exists is marked not_applicable
+C05	design	contract	a contract field is unresolved (UNKNOWN / blank / placeholder)
+C06	design	contract	fields marked not_applicable carry no justification
+C07	design	contract	not_applicable accepted with a justification
+C08	design	contract	tier is not 0/1/2, or disagrees with --expect-tier
+C09	external	contract	all three reference_* fields are not_applicable
+C10	execution	contract	random_seed is unset, or justified as not_applicable
+C11	design	contract	the contract declares no framework_version, so 1.1.0 requirements are advisory
+C12	execution	run-context	a required actor-layer key is absent
+C13	execution	run-context	an actor-layer field is unresolved
+C14	execution	run-context	model identity recorded as unavailable without a model_identity_note
+C15	execution	run-context	not_applicable on an actor field that is always knowable
+C16	execution	run-context	an actor field is not_applicable without justification
+C17	execution	run-context	a run-window bound is not ISO-8601
+C18	execution	run-context	run_started_at is after run_ended_at
+C19	execution	run-context	an actor field accepted as unavailable / not_applicable
+C20	execution	provenance	the provenance ledger is absent or has no data rows
+C21	execution	provenance	the provenance ledger is missing a required column
+C22	execution	provenance	an empty provenance cell (tool / version / parameters / input / output / default source)
+C23	external	provenance	an empty reference_build on a step
+C24	execution	provenance	an empty input_sha256
+C25	execution	provenance	input_sha256 is not a 64-character hex digest
+C26	execution	provenance	rerun_match is not in the enum
+C27	execution	provenance	a declared output file is not on disk
+C28	execution	provenance	a step timestamp is unresolved (blank / placeholder / unknown-family)
+C29	execution	provenance	authored_by is unresolved or not in the enum
+C30	execution	provenance	a step timestamp is not ISO-8601
+C31	execution	provenance	a step window falls outside the declared run window
+C32	execution	provenance	tier 2 requires a re-run (at least one rerun_match=yes)
+C33	execution	provenance	the step deviation state is absent, unresolved, or `unknown`
+C34	execution	claims	the claim ledger is absent or has no data rows
+C35	execution	claims	the claim ledger is missing a required column
+C36	inference	claims	an empty claim cell (claim / level / confidence / verified_by)
+C37	execution	claims	an empty `method` on a claim
+C38	execution	claims	evidence_artifact is empty or not on disk
+C39	inference	claims	the claim level is not in the enum
+C40	inference	claims	confidence is not in the enum
+C41	inference	claims	verified_by is not in the enum
+C42	inference	claims	a causal or clinical claim has neither literature nor human verification
+C43	inference	claims	verified_by=none -- the claim is not yet verified
+C44	inference	claims	tier 2 requires human verification for causal and clinical claims
+C45	inference	claims	verified_by=human without an identified reviewer
+C46	inference	claims	a reviewer is recorded but reviewed_at is empty
+C47	inference	claims	reviewed_at is not ISO-8601
+C48	inference	tables	a table has a p-value column but no multiple-testing-corrected column
+C49	inference	tables	no uncorrected p-value column found in the scanned tables
+C50	execution	reproducibility	an environment lock is present
+C51	execution	reproducibility	tier 2 requires a pinned environment
+C52	execution	reproducibility	no environment lock found (tier 1, advisory)
+C53	execution	reproducibility	no environment lock recorded (tier 0)
+C54	inference	errors	the error class is not in {inherited, amplified, emergent}
+C55	inference	errors	class=emergent without a valid emergent_kind
+C56	execution	errors	the stage names a step_id absent from the provenance ledger
+C57	inference	errors	detected_by=not_detected is inconsistent with containment / detected_at
+C58	inference	errors	propagated_to names a claim_id absent from the claim ledger
+C59	inference	errors	a step is recorded as deviated but the error ledger has no rows
+C60	inference	errors	the error ledger records no errors and carries no `none-detected-by:` declaration
+C61	execution	errors	an error-ledger required cell is empty
+C62	execution	errors	the error ledger is absent although a deviated step requires it
+C63	inference	review	a human-verified claim at tier 2 is not covered by any review record
+C64	inference	review	duration_min is not a positive number
+C65	inference	review	errors_found is blank or not a non-negative integer
+C66	inference	review	the reviewer is empty or a placeholder
+C67	inference	review	reviewed_at is missing or not ISO-8601
+C68	inference	review	a review count field is not a non-negative integer
+C69	inference	review	a required review cell (review_id / scope / calibration_note) is empty
+C70	execution	review	the review-record file is absent or has no rows
+C71	inference	review	review summary statistics (informational -- the checker reports, it does not judge)
+M01	execution	framework	the gate map registers every check id under exactly one gate

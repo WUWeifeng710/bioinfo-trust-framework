@@ -1,0 +1,38 @@
+review_id	scope	reviewer	reviewed_at	duration_min	disagreements	disagreements_detail	overrides	errors_found	error_classes_found	verdicts_changed	calibration_note
+# The review record (framework 1.1.0). One row per human review of the deliverable.
+# Copy this file into the analysis directory as `review-record.tsv`.
+#
+# WHY THIS FILE EXISTS
+#   "A human reviewed it" is a claim about a process, and until now nothing recorded the
+#   process. Tier 2 spent human time and produced a signature. This file makes the review
+#   a measurable component instead of a ceremony: its duration, the disagreements it
+#   surfaced, what it overrode, and what it caught.
+#
+# scope        : comma-separated claim_id / step_id this review covered. A review that
+#                does not say what it covered cannot be said to have covered anything —
+#                the checker requires every human-verified claim at tier 2 to appear in
+#                some record's scope.
+# reviewer     : the same identity rule as the claim ledger — a personal name, initials,
+#                or a stable handle / role id (@wuwei, lab-lead, pi). Empty or a
+#                placeholder is a FAIL: it is indistinguishable from nobody looking.
+# duration_min : positive number of minutes. A review with no time attached cannot be
+#                told apart from a glance at the summary.
+# disagreements / overrides : how many conclusions the reviewer disputed / overturned.
+# disagreements_detail      : required whenever disagreements > 0.
+# errors_found : integer >= 0. 0 is a legal and informative value — it is not the same
+#                as blank, and blank is a FAIL because the two cannot be told apart.
+# error_classes_found : the `class` / `emergent_kind` values from error-ledger.tsv that
+#                this review surfaced. `-` when none.
+# verdicts_changed : how many claim levels changed after the review.
+# calibration_note : one line on what this review's outcome says about the review process
+#                itself (too shallow? found the load-bearing error? mostly cosmetic?).
+#
+# The checker reports the totals across records (count, mean duration, overrides, errors
+# found) and sets no threshold on them. A numeric quota would convert a measurement into
+# a paperwork target, which is how a gate stops being read.
+#
+# One judgement rule that is deliberately NOT automated (SKILL.md): if tier-2 reviews
+# return errors_found = 0 several times running, the signal is about the review process,
+# not about the analysis. A gate that costs human time and never catches anything should
+# be simplified or redesigned — not multiplied.
+# R01	C01,C03	@wuwei	2026-09-19	45	1	Reviewer disputed whether the padj cutoff was fixed before or after seeing the counts.	0	1	emergent:goal_drift	1	Caught the one error that mattered; the rest of the checklist was confirmatory.
