@@ -1,0 +1,6 @@
+step_id	step	tool	tool_version	script_or_command	parameters	input	input_sha256	output	reference_build	source_of_default	rerun_match	started_at	ended_at	authored_by	notes
+# EXAMPLE — delete this line. One row per executed step, appended as you go (Gate 2).
+# No BOM at the start of this file, and none needed: the verifier reads utf-8-sig.
+# started_at / ended_at are ISO-8601 and must fall inside run_started_at..run_ended_at.
+# authored_by is one of: agent | human | agent+human
+# S01	fastq QC	fastp	0.23.4	fastp -i raw/S1_R1.fq.gz -o clean/S1_R1.fq.gz	-q 20 -l 50	raw/S1_R1.fq.gz	<64-hex sha256>	clean/S1_R1.fq.gz	not_applicable	fastp man page defaults	not_attempted	2026-09-19T09:12	2026-09-19T09:19	agent	-

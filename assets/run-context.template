@@ -1,0 +1,54 @@
+# Run context — who/what executed this analysis. (Gate 1, completed at Gate 3)
+#
+# WHY THIS FILE EXISTS
+#   The ledger chain records what was executed. It cannot record WHO executed it.
+#   Without this file, two runs are indistinguishable even when one was produced by
+#   an older model, a different agent, or a different human — and the failure profile
+#   of an analysis depends on its author, not only on its commands.
+#
+# RULES
+#   UNKNOWN      = not thought through yet -> the verifier FAILS. Fill it before running.
+#   not_exposed  = the harness genuinely does not surface it (model identity is the
+#                  normal case) -> allowed, but you MUST annotate model_identity_note.
+#   manual       = no agent was involved; a human ran the steps by hand. This is a
+#                  legitimate value for `agent` -- it is not the same as unknown.
+#
+# Copy this file into the analysis directory as `run-context.txt`.
+
+# ---- the actor ----
+
+# Which agent / harness / CLI executed the analysis: workbuddy, claude-code, codex,
+# hermes, cursor, ... -- or `manual` if a person ran every step by hand.
+# Never `not_applicable`: `manual` already covers the no-agent case.
+agent: UNKNOWN
+
+# Exact model identity, as the harness reports it (e.g. `claude-sonnet-4-5`).
+# Not a family name and not a marketing name if a precise one exists.
+# `not_exposed` only if the harness truly does not surface it -- then explain below.
+model: UNKNOWN
+model_version: UNKNOWN
+
+# Required whenever `model` or `model_version` is `not_exposed` or `not_applicable`.
+# One line. "not exposed" alone is not an explanation.
+model_identity_note: none
+
+# The conversation / session / run identifier, if the harness has one. Lets a reviewer
+# go back to the transcript the numbers came from. `not_applicable` is allowed here.
+session_id: UNKNOWN
+
+# Required whenever any field above is `not_applicable`. Otherwise `none`.
+not_applicable_justification: none
+
+# ---- the window ----
+
+# ISO-8601 (YYYY-MM-DD or YYYY-MM-DDTHH:MM). Every step timestamp in the provenance
+# ledger must fall inside this window -- a step dated outside it means the record was
+# not written when it claims to have been.
+# Fill run_started_at at Gate 1; run_ended_at at Gate 3.
+run_started_at: UNKNOWN
+run_ended_at: UNKNOWN
+
+# ---- notes ----
+
+# Anything a reviewer needs that does not fit above. One line each.
+notes: none

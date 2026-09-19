@@ -1,0 +1,56 @@
+# Analysis contract — fill this before running anything. (Gate 1)
+#
+# Rules:
+#   UNKNOWN          = not thought through yet  -> the verifier FAILS, execution is blocked
+#   not_applicable   = does not exist in this analysis -> allowed, but you must explain in
+#                      not_applicable_justification, and the verifier reports it as SKIP
+#   anything else    = a concrete value -> checked against the rules below
+#
+# Never write `UNKNOWN` to mean "none" — write the real value (`none`).
+# Copy this file into the analysis directory as `analysis-contract.txt`.
+
+# ---- identity: none of these may be `not_applicable` ----
+
+analysis_id: UNKNOWN
+question: UNKNOWN
+analysis_type: UNKNOWN
+unit_of_analysis: UNKNOWN
+tier: UNKNOWN
+success_criteria: UNKNOWN
+
+# ---- comparison design ----
+
+# What one n is (biological individual, patient, batch, simulation replica, ...)
+# NOT a cell count, NOT a read count, NOT a technical replicate.
+n_per_group: UNKNOWN
+comparison: UNKNOWN
+# If treated and control samples are not balanced across batches, say so here.
+batch_confound: UNKNOWN
+
+# ---- versions: the five facts that must be pinned ----
+
+# Genome build exactly as named by the source: GRCh38 / GRCh37 / hg19 / GRCm39 / ...
+reference_genome: UNKNOWN
+reference_annotation: UNKNOWN
+# Databases that contributed annotations or labels: InterPro, Pfam, KEGG, GO, UniProt, PDB, ...
+reference_database: UNKNOWN
+
+# ---- determinism ----
+
+# Every seed used: clustering, dimensionality reduction, subsampling, bootstrapping, model training.
+# Write the concrete integer(s), or `not_applicable` only if the analysis has no stochastic step.
+random_seed: UNKNOWN
+
+# ---- provenance of method choices ----
+
+# Comma-separated names of the methods/pipeline skills that were loaded for this analysis.
+domain_skills_loaded: UNKNOWN
+# Method or parameter choices that depart from the community default. One line each.
+deviations: none
+# Required whenever any field above is `not_applicable`. Otherwise `none`.
+not_applicable_justification: none
+
+# ---- notes ----
+
+# Anything the reviewer needs to know that does not fit above. One line each.
+notes: none
