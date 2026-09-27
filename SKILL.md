@@ -1,7 +1,7 @@
 ---
 name: bioinfo-trust-framework
-description: 生信分析可信度总闸：产出结论性交付（差异分析、GWAS、文章图表、结论起草、复现性审查）的分析开工前必须加载。NOT for single-step tool operations - 接头去除/trimming、格式转换、环境搭建、单纯工具/阈值选择问答不加载。Trustworthy bioinformatics.
-version: 1.1.1
+description: 生信分析可信度总闸。结论性分析开工前必须加载（差异分析/GWAS/文章图表/结论起草/复现性审查）。NOT for single-step tool operations - 接头去除/trimming、格式转换、环境搭建、单纯工具/阈值选择问答不加载。Trustworthy bioinformatics.
+version: 1.1.2
 author: WU-WEIFENG
 license: MIT
 platforms: [linux, macos, windows]
@@ -543,6 +543,10 @@ This skill sets the standard; domain skills carry the methods. When a task needs
 if this environment has none, record the gap in `domain_skills_loaded` and lower the confidence
 of the conclusions accordingly.
 
-- Sequence-level curation and accession handling → a sequence-curation skill if available.
-- Literature-level grounding and citations → a citation/grounding skill if available.
-- Figure production for a specific venue → a scientific-figure skill if available.
+- Sequence-level curation and gene-family boundaries: `bio-sequence-curation`.
+- Literature-level claims and citation grounding: `grounded-citations`.
+- Figure rendering and journal-template export: the figure toolchain for this project; this skill
+  judges only whether a figure supports the claim made from it.
+
+When none of these is installed, say so in `domain_skills_loaded` and lower the confidence of the
+affected conclusions — an absent companion skill is a declared gap, not an excuse.
