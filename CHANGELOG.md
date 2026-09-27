@@ -11,7 +11,27 @@ would make them look arbitrary.
 
 ---
 
-## 1.1.1 — 2026-09-27
+## 1.1.2 — 2026-09-27
+
+**Description-only change again — and the 1.1.1 fix was partly wrong, so this records the reversal.**
+1.1.1 narrowed the activation scope correctly but wrote it by pushing the load directive to character
+~55, outside the 28-character listing window this skill's own activation measurements are made in
+(`README.md` *Why the description is not (only) in English*: noun-phrase and domain-word variants
+scored 0/3 and 0/18, the directive-inside-window variant 9/9). A gate whose directive is not rendered
+is a gate that does not load.
+
+- The directive is back inside the window, and the scope is carried by the directive's own noun
+  instead: `生信分析可信度总闸。结论性分析开工前必须加载` — "结论性分析" (conclusion-bearing analysis)
+  excludes the single-step tool requests 1.1.1 was written to exclude, without a trailing clause the
+  listing never shows. The parenthesised deliverable list and the NOT-for clause stay after it for
+  harnesses that read the whole description.
+- `README.md` states the shipped window text and warns that re-measuring is owed before any further
+  change to it.
+- No rule, check, enum or contract semantics moved; `framework_version` stays 1.1.0.
+
+---
+
+## 1.1.1 — 2026-09-27 *(description superseded by 1.1.2; the scope-narrowing intent stands)*
 
 **Description-only change; no rule, check or contract semantics moved.** The frontmatter description
 said "任何生信分析开工前必须加载", which contradicted *When Not to Use* (pure format conversion,
