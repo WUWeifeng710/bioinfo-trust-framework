@@ -11,6 +11,17 @@ would make them look arbitrary.
 
 ---
 
+## 1.1.1 — 2026-09-27
+
+**Description-only change; no rule, check or contract semantics moved.** The frontmatter description
+said "任何生信分析开工前必须加载", which contradicted *When Not to Use* (pure format conversion,
+file plumbing, environment setup) and made trigger testing over-activate on single-step tool
+requests such as adapter trimming. The description now names the deliverable-bearing analysis scope
+explicitly and carries an NOT-for clause, so catalog-level activation matches the body's own
+boundary. `framework_version` stays 1.1.0 — contracts and checks are unchanged.
+
+---
+
 ## 1.1.0 — 2026-09-19
 
 **Three new mechanical layers, adopted from THREAD-Bio's failure taxonomy, and the reviewer
@@ -135,8 +146,8 @@ The description now leads with an unconditional load directive inside the window
 same probes: **9/9 across three independent repeats** for the directive clause.
 
 Measured context, recorded because it changes the design rule: the `≤ 60` description budget comes
-from Hermes' *repo* CI (`test_authoring_standards.py`), whose `_skill_paths()` globs only `skills/**`
-and `optional-skills/**` — an installed skill is not covered by it. Across 645 installed skills the
+from Hermes' *repo* CI (`test_authoring_standards.py`), whose `_skill_paths()` globs only `skills/**` and
+`optional-skills/**` — an installed skill is not covered by it. Across 645 installed skills the
 median description length is 273 in the WorkBuddy root (88% exceed 60), 214 in Codex, 188 in Claude,
 and 57 in Hermes. The noun-phrase description 0.3.0 carried was a response to a rule that did not
 apply.
