@@ -10,8 +10,8 @@ nothing stops you from acting on it.
 | | |
 |---|---|
 | Skill name | `bioinfo-trust-framework` |
-| Version | 1.1.0 |
-| Description | 生信分析可信度总闸。任何生信分析开工前必须加载。Trustworthy bioinformatics. |
+| Version | 1.1.1 |
+| Description | 生信分析可信度总闸：产出结论性交付（差异分析、GWAS、文章图表、结论起草、复现性审查）的分析开工前必须加载。NOT for single-step tool operations - 接头去除/trimming、格式转换、环境搭建、单纯工具/阈值选择问答不加载。Trustworthy bioinformatics. |
 | Author | WU-WEIFENG |
 | License | MIT |
 | Platforms | linux / macos / windows |
@@ -435,7 +435,7 @@ as well:
    it.
 3. **Shared vocabularies must be the same table, verbatim** — claim levels, `UNKNOWN` vs
    `not_applicable`, the three deviation states. An implementation may add checks, thresholds and
-   mechanisms. It may not re-spell these values.
+   mechanisms. It may not re-spell these.
 
 The first diff run under those rules found a hard conflict: the implementation required the claim
 level `hypothesis_generating` (its own rule forbids labelling enrichment output `causal`) and this
