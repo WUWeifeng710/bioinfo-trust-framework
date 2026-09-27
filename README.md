@@ -10,8 +10,8 @@ nothing stops you from acting on it.
 | | |
 |---|---|
 | Skill name | `bioinfo-trust-framework` |
-| Version | 1.1.1 |
-| Description | 生信分析可信度总闸：产出结论性交付（差异分析、GWAS、文章图表、结论起草、复现性审查）的分析开工前必须加载。NOT for single-step tool operations - 接头去除/trimming、格式转换、环境搭建、单纯工具/阈值选择问答不加载。Trustworthy bioinformatics. |
+| Version | 1.1.2 |
+| Description | 生信分析可信度总闸。结论性分析开工前必须加载（差异分析/GWAS/文章图表/结论起草/复现性审查）。NOT for single-step tool operations - 接头去除/trimming、格式转换、环境搭建、单纯工具/阈值选择问答不加载。Trustworthy bioinformatics. |
 | Author | WU-WEIFENG |
 | License | MIT |
 | Platforms | linux / macos / windows |
@@ -31,7 +31,7 @@ contract (older deliverables keep the pre-1.1.0 bar, downgraded to advisory):
    `execution` / `design` / `inference` / `biological` / `external`, with the mapping
    (`assets/gate-map.tsv`) verified against the checker at startup.
 
-Regression suite: 19 cases / 54 assertions, all green.
+Regression suite: 19 cases / 52 assertions, all green (counted from the runner, not from the prose).
 
 It governs **whether a result can be trusted**, across bioinformatics analysis as a whole —
 sequencing and omics work, sequence and gene-family analysis, phylogenetics, structural and docking
@@ -125,6 +125,13 @@ style choice. Measured on the same probes:
 A domain word alone is not enough, and `mandatory` in English is not enough. What reproduces is an
 **unconditional load directive**. The Chinese clause carries it; the English tail
 (`Trustworthy bioinformatics.`) rides along for human readers and terminates on an ASCII period.
+
+The shipped window text is `生信分析可信度总闸。结论性分析开工前必须加载`, which keeps the directive
+inside the 28 characters while scoping it to *conclusion-bearing* analysis: the unconditional
+"任何生信分析" wording activated the gate on single-step tool requests (adapter trimming, format
+conversion) that *When Not to Use* excludes. 1.1.1 moved the directive out of the window to gain
+that scope and was reverted for exactly this reason — the scope belongs in the directive's own noun,
+not after it. Re-measure this string if you change it; only the longer form has the 9/9 record.
 If your environment prefers a pure-English listing, the rule to preserve is the directive, not the
 language — but expect to re-measure, because that exact string has not been reproduced in English.
 
@@ -275,7 +282,7 @@ substitutes for them.
 
 ## Validation status
 
-The verifier ships with a regression suite — `scripts/test_verify_deliverable.py`, 19 cases and 54
+The verifier ships with a regression suite — `scripts/test_verify_deliverable.py`, 19 cases and 52
 assertions, stdlib only. Run it after any edit to the checker:
 
 ```bash
@@ -352,7 +359,7 @@ That is the framework applied to itself: a check that has never failed a known-b
 been validated.
 
 **Honest scope for 1.1.0:** the three new layers (error account, review record, gate labels) have
-been validated against fixtures only — 19 cases / 54 assertions, every rule tested against both a
+been validated against fixtures only — 19 cases / 52 assertions, every rule tested against both a
 legal and an illegal input. They have **not** yet gated a real multi-week analysis in the field.
 Rule stability is not validator completeness; the first real-world deliverable run under
 `framework_version: 1.1.0` is the actual test, and its findings belong back in this file.
