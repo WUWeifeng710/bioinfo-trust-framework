@@ -27,6 +27,10 @@ is a gate that does not load.
   harnesses that read the whole description.
 - `README.md` states the shipped window text and warns that re-measuring is owed before any further
   change to it.
+- **The documented assertion count was wrong: 54, while the runner prints 52.** Found by re-running
+  the suite while checking the docs against it, in the same class as the BOM-comment defect recorded
+  under 0.3.2 — prose that contradicts the bytes. Corrected in `README.md`; `verify_deliverable` fixtures and behaviour are
+  unchanged (19 cases, all green).
 - No rule, check, enum or contract semantics moved; `framework_version` stays 1.1.0.
 
 ---
