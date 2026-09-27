@@ -543,10 +543,6 @@ This skill sets the standard; domain skills carry the methods. When a task needs
 if this environment has none, record the gap in `domain_skills_loaded` and lower the confidence
 of the conclusions accordingly.
 
-- Sequence-level curation and gene-family boundaries: `bio-sequence-curation`.
-- Literature-level claims and citation grounding: `grounded-citations`.
-- Figure rendering and journal-template export: the figure toolchain for this project; this skill
-  judges only whether a figure supports the claim made from it.
-
-When none of these is installed, say so in `domain_skills_loaded` and lower the confidence of the
-affected conclusions — an absent companion skill is a declared gap, not an excuse.
+- Sequence-level curation and accession handling → a sequence-curation skill if available.
+- Literature-level grounding and citations → a citation/grounding skill if available.
+- Figure production for a specific venue → a scientific-figure skill if available.
