@@ -435,7 +435,7 @@ as well:
    it.
 3. **Shared vocabularies must be the same table, verbatim** — claim levels, `UNKNOWN` vs
    `not_applicable`, the three deviation states. An implementation may add checks, thresholds and
-   mechanisms. It may not re-spell these.
+   mechanisms. It may not re-spell these values.
 
 The first diff run under those rules found a hard conflict: the implementation required the claim
 level `hypothesis_generating` (its own rule forbids labelling enrichment output `causal`) and this
