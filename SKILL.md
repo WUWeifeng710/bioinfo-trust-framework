@@ -1,7 +1,7 @@
 ---
 name: bioinfo-trust-framework
-description: 生信分析可信度总闸。任何生信分析开工前必须加载。Trustworthy bioinformatics.
-version: 1.1.0
+description: 生信分析可信度总闸：产出结论性交付（差异分析、GWAS、文章图表、结论起草、复现性审查）的分析开工前必须加载。NOT for single-step tool operations - 接头去除/trimming、格式转换、环境搭建、单纯工具/阈值选择问答不加载。Trustworthy bioinformatics.
+version: 1.1.1
 author: WU-WEIFENG
 license: MIT
 platforms: [linux, macos, windows]
